@@ -111,9 +111,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:50;
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--shadow)}
 .dash{padding:22px;display:grid;gap:14px}
 .dash-head{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--ink-faint)}
-.dash-dots{display:flex;gap:6px}
-.dash-dots i{width:9px;height:9px;border-radius:50%;background:var(--stroke)}
-.dash-dots i:first-child{background:rgba(47,129,247,.7)}
+.dash-live{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2ee6a8}
+.dash-live::before{content:"";width:7px;height:7px;border-radius:50%;background:#2ee6a8;animation:pulse 2.2s infinite}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .kpi{padding:14px 16px;border-radius:13px;background:rgba(255,255,255,.035);border:1px solid var(--stroke)}
 .kpi b{display:block;font-family:var(--font-head);font-size:1.45rem;font-weight:700}
@@ -297,7 +296,7 @@ footer{padding:34px 0 44px;text-align:center;font-size:.84rem;color:var(--ink-fa
 
     <div class="hero-panel" aria-hidden="true">
       <div class="glass-card dash">
-        <div class="dash-head"><span>pipeline_health · live</span><span class="dash-dots"><i></i><i></i><i></i></span></div>
+        <div class="dash-head"><span>pipeline_health</span><span class="dash-live">live</span></div>
         <div class="kpis">
           <div class="kpi"><b class="grad-text">~40%</b><span>Reporting effort cut</span></div>
           <div class="kpi"><b class="grad-text">4+ yrs</b><span>Experience</span></div>
@@ -477,11 +476,10 @@ footer{padding:34px 0 44px;text-align:center;font-size:.84rem;color:var(--ink-fa
   <div class="wrap">
     <p class="sec-label reveal">Projects</p>
     <h2 class="sec-title reveal">Selected <span class="grad-text">work</span></h2>
-    <p class="sec-sub reveal">End-to-end builds — from data pipeline to deployed interface. Every card links to the code.</p>
+    <p class="sec-sub reveal">End-to-end builds — from data pipeline to deployed interface.</p>
 
     <div class="proj-grid">
-      <!-- To point a card at a specific repo, change its href below -->
-      <a class="glass-card proj-card reveal" href="https://github.com/Pranuvar" target="_blank" rel="noopener noreferrer" aria-label="Retail Operations Analytics Platform — view on GitHub">
+      <div class="glass-card proj-card reveal">
         <div class="proj-viz" aria-hidden="true">
           <svg viewBox="0 0 400 150" preserveAspectRatio="none">
             <g fill="none" stroke="#2f81f7" stroke-opacity=".5" stroke-width="1.4">
@@ -507,13 +505,10 @@ footer{padding:34px 0 44px;text-align:center;font-size:.84rem;color:var(--ink-fa
           <h3>Retail Operations Analytics Platform</h3>
           <p>End-to-end operational analytics platform for a <b>3-location retail business</b>: dbt Core models (staging to marts) with automated data quality tests, <b>Airflow-orchestrated daily refreshes</b>, Snowflake as the single source of truth, and Power BI + Microsoft Fabric dashboards — cutting reporting effort by <b>~40%</b>. Python forecasting scripts support demand planning and inventory decisions.</p>
           <div class="proj-stack"><span>dbt</span><span>Airflow</span><span>Snowflake</span><span>Power BI</span><span>Microsoft Fabric</span><span>Python</span></div>
-          <span class="proj-link">View on GitHub
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-          </span>
         </div>
-      </a>
+      </div>
 
-      <a class="glass-card proj-card reveal" href="https://github.com/Pranuvar" target="_blank" rel="noopener noreferrer" aria-label="Network Intrusion Detection System — view on GitHub">
+      <a class="glass-card proj-card reveal" href="https://github.com/Pranuvar/Network-Intrusion-Detection-System" target="_blank" rel="noopener noreferrer" aria-label="Network Intrusion Detection System — view on GitHub">
         <div class="proj-viz" aria-hidden="true">
           <svg viewBox="0 0 400 150" preserveAspectRatio="none">
             <defs><linearGradient id="pv1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f81f7" stop-opacity=".6"/><stop offset="1" stop-color="#00d4ff" stop-opacity=".15"/></linearGradient></defs>
@@ -534,7 +529,7 @@ footer{padding:34px 0 44px;text-align:center;font-size:.84rem;color:var(--ink-fa
         </div>
       </a>
 
-      <a class="glass-card proj-card reveal" href="https://github.com/Pranuvar" target="_blank" rel="noopener noreferrer" aria-label="Car Damage Classification System — view on GitHub">
+      <a class="glass-card proj-card reveal" href="https://github.com/Pranuvar/Car-damage-classification" target="_blank" rel="noopener noreferrer" aria-label="Car Damage Classification System — view on GitHub">
         <div class="proj-viz" aria-hidden="true">
           <svg viewBox="0 0 400 150" preserveAspectRatio="none">
             <g fill="none" stroke="#2f81f7" stroke-opacity=".55" stroke-width="1.4">
@@ -560,7 +555,7 @@ footer{padding:34px 0 44px;text-align:center;font-size:.84rem;color:var(--ink-fa
         </div>
       </a>
 
-      <a class="glass-card proj-card reveal" href="https://github.com/Pranuvar" target="_blank" rel="noopener noreferrer" aria-label="Credit Card Fraud Detection System — view on GitHub">
+      <a class="glass-card proj-card reveal" href="https://github.com/Pranuvar/Credit-Card-Fraud-Detection" target="_blank" rel="noopener noreferrer" aria-label="Credit Card Fraud Detection System — view on GitHub">
         <div class="proj-viz" aria-hidden="true">
           <svg viewBox="0 0 400 150" preserveAspectRatio="none">
             <g stroke="#2f81f7" stroke-opacity=".35" stroke-width="1">
