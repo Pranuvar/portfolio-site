@@ -201,7 +201,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:50;
 .case-block h4{font-size:.78rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
 .case-block p{font-size:.94rem;color:var(--ink-dim)}
 .case-block p b{color:var(--ink)}
+.case-block p code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;color:#bfe3ff;background:rgba(47,129,247,.12);padding:1px 6px;border-radius:5px}
 .case-note{font-size:.85rem;color:var(--ink-faint);border-top:1px solid var(--stroke);padding-top:18px}
+.case-note-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px 22px;border-top:1px solid var(--stroke);padding-top:18px}
+.case-note-row p{font-size:.85rem;color:var(--ink-faint);margin:0;max-width:520px}
+.case-note-row .proj-link{margin-top:0;flex:none}
 .sub-head{margin:64px 0 28px}
 .sub-head p{color:var(--ink-faint);font-size:.92rem;max-width:620px}
 @media(max-width:760px){.case{padding:26px}.case-grid{grid-template-columns:1fr}}
@@ -538,6 +542,63 @@ footer{padding:34px 0 44px;text-align:center;font-size:.84rem;color:var(--ink-fa
       </div>
       <div class="proj-stack"><span>SQL</span><span>Python</span><span>Power BI</span><span>DAX</span><span>Microsoft Fabric</span><span>dbt</span><span>Airflow</span><span>Snowflake</span></div>
       <p class="case-note">Internal production system, so the data stays private — happy to walk through the data model, measures, and dashboards in an interview.</p>
+    </div>
+
+    <div class="sub-head reveal">
+      <p class="sec-label">Self-Directed Build</p>
+      <p>Production work does not always expose you to the failure modes interviewers actually probe. I built a second pipeline, outside of work, specifically to hit those cases on purpose — and documented what broke.</p>
+    </div>
+
+    <div class="glass-card case reveal">
+      <div class="case-head">
+        <span class="proj-tagline">Self-Directed · Postgres → Snowflake → dbt → Airflow · Aug 2026</span>
+        <h3>Retail Medallion Pipeline</h3>
+      </div>
+      <div class="case-viz" aria-hidden="true">
+        <svg viewBox="0 0 1000 130" preserveAspectRatio="xMidYMid meet">
+          <g fill="none" stroke="#2f81f7" stroke-opacity=".55" stroke-width="1.5">
+            <rect x="65" y="56" width="130" height="46" rx="11"/>
+            <rect x="315" y="56" width="130" height="46" rx="11"/>
+            <rect x="565" y="56" width="130" height="46" rx="11"/>
+            <rect x="815" y="56" width="130" height="46" rx="11"/>
+            <path d="M195,79 L315,79 M445,79 L565,79 M695,79 L815,79"/>
+          </g>
+          <g fill="#00d4ff">
+            <circle r="4"><animateMotion dur="2.4s" repeatCount="indefinite" path="M195,79 L315,79"/></circle>
+            <circle r="4"><animateMotion dur="2.4s" begin="-.8s" repeatCount="indefinite" path="M445,79 L565,79"/></circle>
+            <circle r="4"><animateMotion dur="2.4s" begin="-1.6s" repeatCount="indefinite" path="M695,79 L815,79"/></circle>
+          </g>
+          <g font-size="15" fill="#9fb0cc" text-anchor="middle" font-family="monospace">
+            <text x="130" y="84">postgres</text><text x="380" y="84">bronze</text><text x="630" y="84">silver</text><text x="880" y="84">gold</text>
+          </g>
+          <text x="500" y="34" font-size="14" letter-spacing="2" fill="#bfe3ff" text-anchor="middle" font-family="monospace">watermark extraction · 9.3M rows · dbt + airflow</text>
+        </svg>
+      </div>
+      <div class="case-grid">
+        <div class="case-block">
+          <h4>The problem</h4>
+          <p>JKSR gave me production experience with dbt, Airflow, and Snowflake — but a working pipeline does not always force you through the failure modes that get probed in interviews: late-arriving records, silent schema drift, a task retrying mid-run. I built a pipeline specifically to hit those on purpose.</p>
+        </div>
+        <div class="case-block">
+          <h4>The approach</h4>
+          <p>Postgres OLTP source seeded with <b>~9.3M rows</b> of realistic retail sales and inventory data, extracted via a <b>watermark-based Python job</b> into Snowflake, transformed through dbt Core staging → intermediate → marts layers into a star schema with an <b>SCD Type 2</b> customer dimension and <b>47 automated tests</b>, orchestrated on Airflow with retries and failure alerting.</p>
+        </div>
+        <div class="case-block">
+          <h4>A decision worth defending</h4>
+          <p>The incremental model filters on <b>pipeline load time, not the source update timestamp</b> — so a record corrected two years after the fact still merges in cleanly instead of being silently dropped. I proved it by editing an 18-month-old order line and watching it land as one updated row, not a duplicate.</p>
+        </div>
+        <div class="case-block">
+          <h4>The outcome</h4>
+          <p><b>9.3M rows loaded in 3m22s</b>; the incremental re-run dropped from 4.5M rows to 56. Renamed a source column on purpose and found the pipeline stayed <b>green while writing nulls</b> — <code>accepted_values</code> ignores nulls without a paired <code>not_null</code> test. Query tuning cut scanned micro-partitions from <b>8/8 to 1/8</b>.</p>
+        </div>
+      </div>
+      <div class="proj-stack"><span>PostgreSQL</span><span>Snowflake</span><span>dbt Core</span><span>Airflow</span><span>Python</span><span>Docker</span></div>
+      <div class="case-note-row">
+        <p>Public repo — every deliberate breakage, the diagnosis, and the fix are documented alongside the code.</p>
+        <a class="proj-link" href="https://github.com/Pranuvar/retail-medallion-pipeline" target="_blank" rel="noopener noreferrer">View on GitHub
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </a>
+      </div>
     </div>
 
     <div class="sub-head reveal">
