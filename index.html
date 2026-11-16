@@ -103,7 +103,8 @@ a{color:inherit}
 .readout .src{margin-top:.5rem}
 .readout p.body{color:#c6d2db;max-width:62ch}
 .hero-cta{display:flex;flex-wrap:wrap;gap:.8rem;padding:clamp(1.6rem,4vh,2.6rem) 0 clamp(3rem,7vh,5rem)}
-.path .observatory{margin-top:0}
+.mega{font:800 clamp(2.7rem,8.2vw,8.6rem)/.86 var(--display);text-transform:uppercase;text-wrap:balance}
+.path .observatory{margin-top:clamp(1.4rem,4vh,2.6rem)}
 .path .readout{padding-bottom:0}
 @media (max-width:720px){.readout{grid-template-columns:1fr;min-height:13rem}.obs-ends{font-size:.58rem}.obs-ends span{padding-left:.2rem}}
 
@@ -264,11 +265,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
 <!-- ═════ 1. HERO ═════ -->
 <section class="hero wrap" id="top" data-name="Hero">
   <div class="hero-top">
-    <p class="who"><b>Praneeth Varma Danthuluri</b> <span>— Data Engineer / Analytics Engineer, Dublin</span></p>
+    <p class="who"><b>Data Engineer / Analytics Engineer</b> <span>— Dublin, Ireland</span></p>
     <p class="tele" aria-hidden="true">53.3498°N 6.2603°W &nbsp; <span id="clock"></span></p>
   </div>
 
-  <h1><span class="ln"><span>Engineering the path</span></span> <span class="ln"><span>from data to decisions.</span></span></h1>
+  <h1><span class="ln"><span>Praneeth Varma</span></span> <span class="ln"><span>Danthuluri</span></span></h1>
 
   <div class="hero-cta">
     <a class="btn solid" href="#projects">See the projects</a>
@@ -306,6 +307,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
 <!-- ═════ THE PATH (animation) ═════ -->
 <section class="sec path" id="path" data-name="Path">
   <div class="wrap">
+    <h2 class="mega">Engineering the path from data to decisions.</h2>
   <div class="observatory">
       <canvas id="field" role="img" aria-label="Animated diagram in five stages. Scattered raw data points land in table rows, bad records are diverted to a quarantine rail, the remaining rows merge into four lanes, and the lanes feed four steady bars. The stages line up with Azure, Microsoft Fabric, Databricks, Snowflake with dbt, and Power BI."></canvas>
       <div class="obs-ends tele" aria-hidden="true"><span>raw sources</span><span>landed</span><span>cleaned</span><span>modelled</span><span>decisions</span></div>
