@@ -87,8 +87,9 @@ a{color:inherit}
 @keyframes rise{to{transform:none}}
 
 .observatory{position:relative;margin-top:clamp(1rem,3vh,2rem);border-block:1px solid var(--line-strong)}
-.observatory canvas{display:block;width:100%;height:clamp(200px,30vh,300px);touch-action:pan-y}
-.obs-ends{position:absolute;inset:.55rem .1rem auto;display:flex;justify-content:space-between;pointer-events:none}
+.observatory canvas{display:block;width:100%;height:clamp(220px,32vh,320px);touch-action:pan-y}
+.obs-ends{position:absolute;inset:.45rem 0 auto;display:grid;grid-template-columns:repeat(5,1fr);pointer-events:none;font-size:.7rem}
+.obs-ends span{padding-left:.5rem;color:var(--dim)}
 .obs-ends span:first-child{color:var(--uv-soft)}
 .obs-ends span:last-child{color:var(--cyan)}
 .pause{position:absolute;right:0;bottom:.5rem;background:rgba(4,6,10,.7);border:1px solid var(--line);color:var(--dim);font:400 .74rem var(--mono);padding:.35rem .6rem;cursor:pointer}
@@ -102,7 +103,7 @@ a{color:inherit}
 .readout .src{margin-top:.5rem}
 .readout p.body{color:#c6d2db;max-width:62ch}
 .hero-cta{display:flex;flex-wrap:wrap;gap:.8rem;padding:1.6rem 0 clamp(3rem,7vh,5rem)}
-@media (max-width:720px){.readout{grid-template-columns:1fr;min-height:13rem}.obs-ends{font-size:.66rem}}
+@media (max-width:720px){.readout{grid-template-columns:1fr;min-height:13rem}.obs-ends{font-size:.58rem}.obs-ends span{padding-left:.2rem}}
 
 /* ───── sections ───── */
 section{position:relative}
@@ -268,8 +269,8 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
   <h1><span class="ln"><span>Engineering the path</span></span><span class="ln"><span>from data to decisions.</span></span></h1>
 
   <div class="observatory">
-    <canvas id="field" role="img" aria-label="Animated diagram: scattered raw data points on the left pass through five stages — Azure, Microsoft Fabric, Databricks, Snowflake with dbt, and Power BI — and leave on the right as ordered lanes."></canvas>
-    <div class="obs-ends tele" aria-hidden="true"><span>raw sources</span><span>decisions</span></div>
+    <canvas id="field" role="img" aria-label="Animated diagram in five stages. Scattered raw data points land in table rows, bad records are diverted to a quarantine rail, the remaining rows merge into four lanes, and the lanes feed four steady bars. The stages line up with Azure, Microsoft Fabric, Databricks, Snowflake with dbt, and Power BI."></canvas>
+    <div class="obs-ends tele" aria-hidden="true"><span>raw sources</span><span>landed</span><span>cleaned</span><span>modelled</span><span>decisions</span></div>
     <button class="pause" type="button" id="pause" aria-pressed="false">Pause motion</button>
   </div>
 
@@ -615,62 +616,101 @@ tabs.forEach(function(t,i){
   });
 });
 
-/* ── the field: disorder on the left resolves into lanes on the right ── */
+/* ── the field: five bands, and the data visibly changes in each one ──
+   0 raw sources  scattered points, loosely linked
+   1 landed       points snap into table rows and step cell by cell
+   2 cleaned      bad records peel off to a quarantine rail, the rest turn cyan
+   3 modelled     eight rows merge into four lanes
+   4 decisions    lanes feed four bars that hold steady                      */
 var cv=d.getElementById('field'), cx=cv.getContext('2d'), W=0,H=0,DPR=1, P=[], running=false, userPaused=false, visible=true, raf=0, last=0;
-var mouse={x:-999,y:-999};
-var GATES=[.1,.3,.5,.7,.9], LANES=7;
+var mouse={x:-999,y:-999}, ROWS=8, LW=[.34,.2,.29,.17], BAR0=.835, bar=[0,0,0,0], RATE=1;
 function rnd(a,b){return a+Math.random()*(b-a);}
+function ss(a,b,x){x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x);}
+function rowY(r){return H*(.17+r*.088);}
+function laneY(l){return (rowY(l*2)+rowY(l*2+1))/2;}
+function pickLane(){var r=Math.random(),l=0;while(l<3&&r>LW[l]){r-=LW[l];l++;}return l;}
+function spawn(p,t){
+  p.t=t;p.lane=pickLane();p.row=p.lane*2+(Math.random()<.5?0:1);p.bad=Math.random()<.14;
+  p.n1=rnd(-1,1);p.ph=rnd(0,6.28);p.fq=rnd(.5,1.5);p.sp=rnd(.05,.085);p.ox=p.oy=0;return p;
+}
 function seed(){
-  var n=W<640?110:W<1100?190:270; P=[];
-  for(var i=0;i<n;i++)P.push({t:Math.random(),lane:i%LANES,n1:rnd(-1,1),ph:rnd(0,6.28),sp:rnd(.028,.06),fq:rnd(.6,1.6),ox:0,oy:0});
+  var n=W<640?130:W<1100?230:330,i;P=[];
+  for(i=0;i<n;i++)P.push(spawn({},Math.random()*.84));
+  RATE=n*.86/14;                                   /* good records arriving per second, roughly */
+  for(i=0;i<4;i++)bar[i]=Math.min(.15,LW[i]*.36)*W;
 }
 function size(){
   var r=cv.getBoundingClientRect(); DPR=Math.min(window.devicePixelRatio||1,2);
   W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);cx.setTransform(DPR,0,0,DPR,0,0);
   seed();draw(0);
 }
-function chaos(t){var c=1-Math.min(1,Math.max(0,(t-.04)/.86));return c*c*(3-2*c);}   /* 1 = raw, 0 = ordered */
-function pos(p,time){
-  var c=chaos(p.t), x=p.t*W, laneY=H*.5+(p.lane-(LANES-1)/2)*(H*.085);
-  var wild=H*.5+p.n1*H*.4+Math.sin(time*p.fq+p.ph)*H*.07;
-  return {x:x+p.ox,y:laneY+(wild-laneY)*c+p.oy,c:c};
-}
-function mix(c){ /* ultraviolet when raw → cyan when ordered */
-  var r=Math.round(25+(139-25)*c), g=Math.round(227+(92-227)*c), b=255; return r+','+g+','+b;
+function place(p,time){
+  var t=p.t, x=t*W, cell=W*.2/9, o={k:0,a:1,c:0};
+  var wild=H*(.47+p.n1*.38)+Math.sin(time*p.fq+p.ph)*H*.06, ry=rowY(p.row), y;
+  if(t<.27){y=wild+(ry-wild)*ss(.15,.27,t);o.k=t<.2?0:1;}
+  else if(t<.6){y=ry;o.k=1;}
+  else{y=ry+(laneY(p.lane)-ry)*ss(.6,.72,t);o.k=t<.66?1:2;}
+  if(t>.24&&t<.42){var q=(Math.floor(x/cell)+.5)*cell;x=x+(q-x)*Math.min(ss(.24,.27,t),1-ss(.39,.42,t));}
+  if(p.bad&&t>.42){var f=ss(.42,.52,t);y=ry+(H*.93-ry)*f;o.a=1-ss(.5,.6,t);o.k=3;}
+  o.c=p.bad?0:ss(.4,.56,t);                         /* 0 ultraviolet → 1 cyan */
+  if(t<.02)o.a=t/.02;
+  o.x=x+p.ox;o.y=y+p.oy;return o;
 }
 function draw(dt){
-  var time=performance.now()/1000, i,j,a,b,q=[];
-  cx.clearRect(0,0,W,H);
-  /* gates */
-  for(i=0;i<GATES.length;i++){
-    var gx=GATES[i]*W, on=i===active;
-    cx.strokeStyle=on?'rgba(25,227,255,.85)':'rgba(120,220,255,.2)';cx.lineWidth=on?1.5:1;
-    cx.beginPath();cx.moveTo(gx,0);cx.lineTo(gx,H);cx.stroke();
-    cx.beginPath();cx.arc(gx,H*.5,on?H*.36:H*.3,0,6.283);cx.strokeStyle=on?'rgba(25,227,255,.4)':'rgba(120,220,255,.09)';cx.stroke();
-    if(on){var g=cx.createRadialGradient(gx,H*.5,0,gx,H*.5,H*.42);g.addColorStop(0,'rgba(25,227,255,.13)');g.addColorStop(1,'rgba(25,227,255,0)');cx.fillStyle=g;cx.fillRect(gx-H*.42,0,H*.84,H);}
-  }
-  /* particles */
-  for(i=0;i<P.length;i++){
-    var p=P[i];
-    if(dt){p.t+=p.sp*dt*(.55+.9*(1-chaos(p.t)));if(p.t>1.02){p.t=-.02;p.n1=rnd(-1,1);p.lane=(Math.random()*LANES)|0;}}
-    var o=pos(p,time), dx=o.x-mouse.x, dy=o.y-mouse.y, dist=dx*dx+dy*dy;
-    if(dist<12100&&dist>1){var f=(1-Math.sqrt(dist)/110)*26, m=Math.sqrt(dist);p.ox+=(dx/m*f-p.ox)*.12;p.oy+=(dy/m*f-p.oy)*.12;}
-    else{p.ox*=.92;p.oy*=.92;}
+  var time=performance.now()/1000,i,j,a,b,q=[],p,o,bw=W*.2,x0;
+  cx.clearRect(0,0,W,H);cx.globalCompositeOperation='source-over';cx.lineWidth=1;
+  /* active band */
+  x0=active*bw;var g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(25,227,255,0)');g.addColorStop(1,'rgba(25,227,255,.09)');
+  cx.fillStyle=g;cx.fillRect(x0,0,bw,H);
+  /* band boundaries, with small brackets */
+  for(i=1;i<5;i++){var gx=Math.round(i*bw)+.5,on=(i===active||i===active+1);
+    cx.strokeStyle=on?'rgba(25,227,255,.6)':'rgba(120,220,255,.16)';
+    cx.beginPath();cx.moveTo(gx,0);cx.lineTo(gx,H);cx.moveTo(gx-5,H-6.5);cx.lineTo(gx+5,H-6.5);cx.stroke();}
+  /* table lattice where data lands */
+  cx.strokeStyle='rgba(139,92,255,.16)';cx.beginPath();
+  for(i=0;i<ROWS;i++){cx.moveTo(bw*1.2,rowY(i)+.5);cx.lineTo(bw*2,rowY(i)+.5);}
+  for(i=2;i<=9;i++){var lx=Math.round(bw+i*bw/9)+.5;cx.moveTo(lx,rowY(0)-8);cx.lineTo(lx,rowY(ROWS-1)+8);}
+  cx.stroke();
+  /* row guides through cleaning, lane guides after the merge */
+  cx.strokeStyle='rgba(120,220,255,.1)';cx.beginPath();
+  for(i=0;i<ROWS;i++){cx.moveTo(bw*2,rowY(i)+.5);cx.lineTo(bw*3,rowY(i)+.5);}
+  for(i=0;i<4;i++){cx.moveTo(W*.72,laneY(i)+.5);cx.lineTo(W*BAR0,laneY(i)+.5);}
+  cx.stroke();
+  /* quarantine rail */
+  cx.setLineDash([3,4]);cx.strokeStyle='rgba(255,120,175,.5)';cx.beginPath();cx.moveTo(W*.47,H*.93+.5);cx.lineTo(W*.6,H*.93+.5);cx.stroke();cx.setLineDash([]);
+  if(W>=640){cx.font='10px ui-monospace,Menlo,Consolas,monospace';cx.fillStyle='rgba(255,150,190,.75)';cx.textAlign='right';cx.fillText('quarantine',W*.465,H*.93+3.5);}
+  /* advance */
+  for(i=0;i<P.length;i++){p=P[i];
+    if(dt){
+      p.t+=p.sp*dt*(p.t>.66?1.5:1);
+      if(p.bad&&p.t>=.6)spawn(p,-Math.random()*.05);
+      else if(p.t*W>=W*BAR0+bar[p.lane]){bar[p.lane]+=W*.36*.45/RATE;spawn(p,-Math.random()*.05);}
+    }
+    o=place(p,time);
+    var dx=o.x-mouse.x,dy=o.y-mouse.y,d2=dx*dx+dy*dy;
+    if(d2<10000&&d2>1){var m=Math.sqrt(d2),f=(1-m/100)*22;p.ox+=(dx/m*f-p.ox)*.12;p.oy+=(dy/m*f-p.oy)*.12;}else{p.ox*=.9;p.oy*=.9;}
     q.push(o);
   }
-  /* network links only where data is still disordered */
-  cx.lineWidth=1;
-  for(i=0;i<q.length;i++){a=q[i];if(a.c<.12)continue;
-    for(j=i+1;j<q.length;j++){b=q[j];if(b.c<.12)continue;
-      var ex=a.x-b.x;if(ex>70||ex<-70)continue;var ey=a.y-b.y,e2=ex*ex+ey*ey;
-      if(e2<4900){cx.strokeStyle='rgba(139,92,255,'+((1-e2/4900)*.34*Math.min(a.c,b.c)).toFixed(3)+')';cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}
-    }
+  if(dt)for(i=0;i<4;i++)bar[i]=Math.max(W*.012,Math.min(W*.155,bar[i]*Math.exp(-dt*.45)));
+  /* links between raw points only */
+  for(i=0;i<q.length;i++){a=q[i];if(a.k!==0)continue;
+    for(j=i+1;j<q.length;j++){b=q[j];if(b.k!==0)continue;var ex=a.x-b.x;if(ex>64||ex<-64)continue;var ey=a.y-b.y,e2=ex*ex+ey*ey;
+      if(e2<4096){cx.strokeStyle='rgba(139,92,255,'+((1-e2/4096)*.4).toFixed(3)+')';cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}}}
+  /* records */
+  cx.globalCompositeOperation='lighter';
+  for(i=0;i<q.length;i++){o=q[i];if(o.a<=0)continue;
+    var col=o.k===3?'255,120,175':Math.round(139-114*o.c)+','+Math.round(92+135*o.c)+',255';
+    cx.fillStyle='rgba('+col+','+(.85*o.a).toFixed(3)+')';
+    if(o.k===0){cx.beginPath();cx.arc(o.x,o.y,1.9,0,6.283);cx.fill();}
+    else if(o.k===2){cx.fillRect(o.x-11,o.y-1,13,2);cx.fillStyle='rgba(210,250,255,'+o.a+')';cx.fillRect(o.x,o.y-1,2,2);}
+    else cx.fillRect(o.x-2,o.y-2,4,4);
   }
-  for(i=0;i<q.length;i++){a=q[i];
-    cx.fillStyle='rgba('+mix(a.c)+','+(.55+.45*(1-a.c))+')';
-    if(a.c<.25){cx.fillRect(a.x-7,a.y-1,14,2);}            /* ordered: dashes travelling in lanes */
-    else{cx.beginPath();cx.arc(a.x,a.y,1.3+a.c*1.3,0,6.283);cx.fill();}
-  }
+  /* bars: where the lanes end */
+  cx.globalCompositeOperation='source-over';
+  for(i=0;i<4;i++){var bx=W*BAR0,by=laneY(i)-H*.045,bh=H*.09,gr=cx.createLinearGradient(bx,0,bx+bar[i],0);
+    gr.addColorStop(0,'rgba(25,227,255,.16)');gr.addColorStop(1,'rgba(25,227,255,.82)');
+    cx.fillStyle=gr;cx.fillRect(bx,by,bar[i],bh);cx.fillStyle='#d8fbff';cx.fillRect(bx+bar[i]-2,by,2,bh);
+    cx.fillStyle='rgba(120,220,255,.3)';cx.fillRect(bx-.5,by-4,1,bh+8);}
 }
 function loop(now){
   if(!running)return;
@@ -683,7 +723,7 @@ function sync(){
 }
 cv.addEventListener('pointermove',function(e){var r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;});
 cv.addEventListener('pointerleave',function(){mouse.x=mouse.y=-999;});
-cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),f=(e.clientX-r.left)/r.width,best=0;GATES.forEach(function(g,i){if(Math.abs(g-f)<Math.abs(GATES[best]-f))best=i;});select(best);});
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect();select(Math.min(4,Math.floor((e.clientX-r.left)/r.width*5)));});
 var pb=d.getElementById('pause');
 pb.addEventListener('click',function(){userPaused=!userPaused;pb.setAttribute('aria-pressed',userPaused);pb.textContent=userPaused?'Resume motion':'Pause motion';sync();});
 if('IntersectionObserver' in window)new IntersectionObserver(function(en){visible=en[0].isIntersecting;sync();}).observe(cv);
