@@ -199,6 +199,24 @@ section{position:relative}
 .contact .mail:hover{color:#9af3ff}
 .contact .row{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.8rem}
 .contact .avail{margin-top:1.8rem;color:var(--dim);max-width:52ch}
+.contact-grid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:2.5rem clamp(1.5rem,4vw,4rem);margin-top:clamp(1.5rem,4vh,2.5rem);align-items:start}
+.contact-grid .mail{margin-top:0}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem 1rem;border:1px solid var(--line-strong);background:rgba(9,13,20,.8);padding:clamp(1.2rem,2.6vw,2rem)}
+.field{grid-column:1/-1;display:grid;gap:.4rem}
+.field.half{grid-column:auto}
+.field label{font-size:.9rem;font-weight:500}
+.field label span{color:var(--dim);font-weight:400}
+.field input,.field textarea{width:100%;background:var(--void);border:1px solid var(--line-strong);color:var(--ink);font:400 1rem/1.4 var(--body);padding:.75rem .8rem;border-radius:0}
+.field textarea{resize:vertical;min-height:7.5rem}
+.field input:focus-visible,.field textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:0;border-color:var(--cyan)}
+.field [aria-invalid="true"]{border-color:#ff7a90}
+.form .btn{grid-column:1/-1;justify-content:center;padding-block:1rem;font-size:1rem}
+.form-msg{grid-column:1/-1;font-size:.92rem;color:#ff9aab;min-height:0}
+.form-msg:empty{display:none}
+.form-msg.ok{color:var(--cyan)}
+.form-note{grid-column:1/-1;color:var(--dim);font-size:.86rem}
+@media (max-width:860px){.contact-grid{grid-template-columns:1fr}}
+@media (max-width:480px){.field.half{grid-column:1/-1}}
 footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:1.4rem 0 2rem}
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem 2rem}
 
@@ -320,6 +338,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
       </div>
       <dl class="facts">
         <div><dt>Role</dt><dd>Data Engineer / Analytics Engineer</dd></div>
+        <div><dt>Open to</dt><dd>Data Engineer, Analytics Engineer and Data Analyst / BI roles</dd></div>
         <div><dt>Based in</dt><dd>Dublin, Ireland. Open to relocation</dd></div>
         <div><dt>Availability</dt><dd>Immediate. Contract or permanent</dd></div>
         <div><dt>Working since</dt><dd>2021</dd></div>
@@ -479,7 +498,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
   <div class="wrap">
     <div class="sec-head">
       <h2>Technical architecture and skills</h2>
-      <p>My skills, arranged the way data moves through a platform rather than as a list.</p>
+      <p></p>
     </div>
     <div class="arch">
       <div class="layer"><h3>Ingest<small>Getting data out of source systems</small></h3>
@@ -514,14 +533,27 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
 <section class="sec contact" id="contact" data-name="Contact">
   <div class="wrap">
     <h2>Have data that needs a path?</h2>
-    <a class="mail" href="mailto:praneethvarmaraju3@gmail.com">praneethvarmaraju3@gmail.com</a>
-    <div class="row">
-      <a class="btn" href="tel:+353834177274">+353 83 417 7274</a>
-      <a class="btn" href="https://www.linkedin.com/in/praneeth-varma-danthuluri">LinkedIn</a>
-      <a class="btn" href="https://github.com/Pranuvar">GitHub</a>
-      <a class="btn solid" href="resume.pdf">Download résumé (PDF)</a>
+    <div class="contact-grid">
+      <div>
+        <a class="mail" href="mailto:praneethvarmaraju3@gmail.com">praneethvarmaraju3@gmail.com</a>
+        <div class="row">
+          <a class="btn" href="tel:+353834177274">+353 83 417 7274</a>
+          <a class="btn" href="https://www.linkedin.com/in/praneeth-varma-danthuluri">LinkedIn</a>
+          <a class="btn" href="https://github.com/Pranuvar">GitHub</a>
+          <a class="btn" href="resume.pdf">Download résumé (PDF)</a>
+        </div>
+        <p class="avail">Open to Data Engineer, Analytics Engineer and Data Analyst roles, contract or permanent. Based in Dublin, available immediately and open to relocation.</p>
+      </div>
+      <form class="form" id="contact-form" novalidate>
+        <div class="field"><label for="f-name">Name</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>
+        <div class="field half"><label for="f-phone">Mobile number <span>(optional)</span></label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel"></div>
+        <div class="field half"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" rows="5" required></textarea></div>
+        <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+        <button class="btn solid" type="submit">Get in touch</button>
+        <p class="form-note">Opens your email app with the message filled in, ready to send.</p>
+      </form>
     </div>
-    <p class="avail">Open to Data Engineer and Analytics Engineer roles, contract or permanent. Based in Dublin, available immediately and open to relocation.</p>
   </div>
 </section>
 </main>
@@ -659,6 +691,21 @@ d.addEventListener('visibilitychange',sync);
 (reduce.addEventListener?reduce.addEventListener.bind(reduce,'change'):reduce.addListener.bind(reduce))(sync);
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(size,120);});
 select(0);size();sync();
+
+/* ── contact form: static site, so it hands the message to the visitor's email app ── */
+var form=d.getElementById('contact-form'), fm=d.getElementById('form-msg');
+form.addEventListener('submit',function(e){
+  e.preventDefault();
+  var n=form.elements.name, em=form.elements.email, ph=form.elements.phone, ms=form.elements.message, bad=null;
+  [[n,n.value.trim()],[em,/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em.value.trim())],[ms,ms.value.trim()]].forEach(function(p){
+    if(p[1]){p[0].removeAttribute('aria-invalid');}else{p[0].setAttribute('aria-invalid','true');bad=bad||p[0];}
+  });
+  fm.className='form-msg';
+  if(bad){fm.textContent=bad===em?'Enter a valid email address so I can reply.':'Add your '+(bad===n?'name':'message')+' before sending.';bad.focus();return;}
+  var body=ms.value.trim()+'\n\n— '+n.value.trim()+'\nEmail: '+em.value.trim()+(ph.value.trim()?'\nMobile: '+ph.value.trim():'');
+  location.href='mailto:praneethvarmaraju3@gmail.com?subject='+encodeURIComponent('Portfolio enquiry from '+n.value.trim())+'&body='+encodeURIComponent(body);
+  fm.className='form-msg ok';fm.textContent='Your email app should now be open with the message ready. If nothing opened, email praneethvarmaraju3@gmail.com directly.';
+});
 
 /* ── position rail + current nav link ── */
 var links=[].slice.call(nav.querySelectorAll('a')), secs=[].slice.call(d.querySelectorAll('main > section')), rn=d.getElementById('rail-name'), rp=d.getElementById('rail-pct'), tk=false;
