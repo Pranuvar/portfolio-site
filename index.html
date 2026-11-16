@@ -102,7 +102,9 @@ a{color:inherit}
 .readout h2{font:800 clamp(1.7rem,3.2vw,2.6rem)/1 var(--display);text-transform:uppercase;letter-spacing:.01em}
 .readout .src{margin-top:.5rem}
 .readout p.body{color:#c6d2db;max-width:62ch}
-.hero-cta{display:flex;flex-wrap:wrap;gap:.8rem;padding:1.6rem 0 clamp(3rem,7vh,5rem)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:.8rem;padding:clamp(1.6rem,4vh,2.6rem) 0 clamp(3rem,7vh,5rem)}
+.path .observatory{margin-top:0}
+.path .readout{padding-bottom:0}
 @media (max-width:720px){.readout{grid-template-columns:1fr;min-height:13rem}.obs-ends{font-size:.58rem}.obs-ends span{padding-left:.2rem}}
 
 /* ───── sections ───── */
@@ -268,24 +270,6 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
 
   <h1><span class="ln"><span>Engineering the path</span></span> <span class="ln"><span>from data to decisions.</span></span></h1>
 
-  <div class="observatory">
-    <canvas id="field" role="img" aria-label="Animated diagram in five stages. Scattered raw data points land in table rows, bad records are diverted to a quarantine rail, the remaining rows merge into four lanes, and the lanes feed four steady bars. The stages line up with Azure, Microsoft Fabric, Databricks, Snowflake with dbt, and Power BI."></canvas>
-    <div class="obs-ends tele" aria-hidden="true"><span>raw sources</span><span>landed</span><span>cleaned</span><span>modelled</span><span>decisions</span></div>
-    <button class="pause" type="button" id="pause" aria-pressed="false">Pause motion</button>
-  </div>
-
-  <div class="stages" role="tablist" aria-label="Platforms along the path">
-    <button role="tab" id="t0" aria-controls="readout" aria-selected="true">Azure</button>
-    <button role="tab" id="t1" aria-controls="readout" aria-selected="false" tabindex="-1">Microsoft Fabric</button>
-    <button role="tab" id="t2" aria-controls="readout" aria-selected="false" tabindex="-1">Databricks</button>
-    <button role="tab" id="t3" aria-controls="readout" aria-selected="false" tabindex="-1">Snowflake + dbt</button>
-    <button role="tab" id="t4" aria-controls="readout" aria-selected="false" tabindex="-1">Power BI</button>
-  </div>
-  <div class="readout" id="readout" role="tabpanel" aria-labelledby="t0" aria-live="polite" tabindex="0">
-    <div><h2 id="r-title"></h2><p class="tele src" id="r-src"></p></div>
-    <p class="body" id="r-body"></p>
-  </div>
-
   <div class="hero-cta">
     <a class="btn solid" href="#projects">See the projects</a>
     <a class="btn" href="resume.pdf">Download résumé (PDF)</a>
@@ -316,6 +300,30 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
         <div><dt>Core stack</dt><dd>SQL, Python, PySpark, dbt, Fabric, Databricks, Snowflake, Power BI and DAX</dd></div>
       </dl>
     </div>
+  </div>
+</section>
+
+<!-- ═════ THE PATH (animation) ═════ -->
+<section class="sec path" id="path" data-name="Path">
+  <div class="wrap">
+  <div class="observatory">
+      <canvas id="field" role="img" aria-label="Animated diagram in five stages. Scattered raw data points land in table rows, bad records are diverted to a quarantine rail, the remaining rows merge into four lanes, and the lanes feed four steady bars. The stages line up with Azure, Microsoft Fabric, Databricks, Snowflake with dbt, and Power BI."></canvas>
+      <div class="obs-ends tele" aria-hidden="true"><span>raw sources</span><span>landed</span><span>cleaned</span><span>modelled</span><span>decisions</span></div>
+      <button class="pause" type="button" id="pause" aria-pressed="false">Pause motion</button>
+    </div>
+
+    <div class="stages" role="tablist" aria-label="Platforms along the path">
+      <button role="tab" id="t0" aria-controls="readout" aria-selected="true">Azure</button>
+      <button role="tab" id="t1" aria-controls="readout" aria-selected="false" tabindex="-1">Microsoft Fabric</button>
+      <button role="tab" id="t2" aria-controls="readout" aria-selected="false" tabindex="-1">Databricks</button>
+      <button role="tab" id="t3" aria-controls="readout" aria-selected="false" tabindex="-1">Snowflake + dbt</button>
+      <button role="tab" id="t4" aria-controls="readout" aria-selected="false" tabindex="-1">Power BI</button>
+    </div>
+    <div class="readout" id="readout" role="tabpanel" aria-labelledby="t0" aria-live="polite" tabindex="0">
+      <div><h2 id="r-title"></h2><p class="tele src" id="r-src"></p></div>
+      <p class="body" id="r-body"></p>
+    </div>
+
   </div>
 </section>
 
