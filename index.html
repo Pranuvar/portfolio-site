@@ -302,8 +302,8 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
     </div>
     <div class="about">
       <div class="prose">
-        <p class="lead">I’m a data engineer who started in software, moved through reporting, and ended up responsible for the full data stack of a three-site retail business.</p>
-        <p>At JKSR Trading in Dublin I replaced manual weekly reporting with pipelines into Microsoft Fabric and a Power BI semantic model, pulling from Azure SQL and on-premise systems, with dbt, Airflow and Snowflake in the workflow. Reporting effort dropped by roughly 40%, measured against the hours it took before.</p>
+        <p class="lead">I’m a data engineer who started in software, moved through reporting, and ended up responsible for the data and reporting stack of a three-outlet retailer.</p>
+        <p>At JKSR Trading in Dublin I moved weekly manual reporting to daily refreshes: Fabric Data Factory and Dataflows Gen2 landing Azure SQL and on-premise data in a Lakehouse, a Power BI semantic model on top, and Airflow with dbt and Snowflake across operational and prototype workloads. Reporting effort dropped by roughly 40%, measured against the hours it took before.</p>
         <p>Outside work I build the platforms my day job didn’t give me: a freight data platform on Databricks and PySpark, and a Snowflake and dbt pipeline designed to fail in the ways interviewers ask about. Both are public, with the breakages documented.</p>
         <p>I hold an MSc in Artificial Intelligence from National College of Ireland and a BTech in Computer Science.</p>
       </div>
@@ -368,17 +368,18 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
         </div>
       </div>
       <div class="what">
-        <p>An end-to-end platform for a fictional road-freight forwarder whose Ops, Finance and Sales teams each calculated on-time delivery differently and checked carrier invoices by hand. Four deliberately messy sources go in: a PostgreSQL transport system, 523 daily Parquet scan files with late and duplicate arrivals, carrier invoices in three CSV layouts, and a reference API that fails on purpose.</p>
+        <p>An end-to-end platform for a fictional road-freight forwarder whose Ops, Finance and Sales teams each calculated on-time delivery differently and checked carrier invoices by hand. It covers 200,000 shipments and about 2 million tracking scans. Four deliberately messy sources go in: a PostgreSQL transport system, 523 daily Parquet scan files with late and duplicate arrivals, carrier invoices in three CSV layouts, and a reference API that fails on purpose.</p>
         <div class="flow" aria-label="Pipeline: sources, Bronze, quality checks, Silver, reconciliation, Gold, semantic model, Power BI">
           <span>4 sources</span><i></i><span>Bronze</span><i></i><span class="gate">quality + quarantine</span><i></i><span>Silver</span><i></i><span class="gate">reconcile</span><i></i><span>Gold star schema</span><i></i><span>semantic model</span><i></i><span>Power BI</span>
         </div>
-        <p>Gold is a star schema of 3 facts and 6 dimensions with a Type 2 customer dimension. On Databricks the pipeline runs as a multi-task job deployed through Asset Bundles with dev and prod targets, ingesting with Auto Loader into Unity Catalog. Power BI reads only Gold versions that passed reconciliation.</p>
+        <p>Gold is a star schema of 3 facts and 6 dimensions with a Type 2 customer dimension. I then rebuilt it on Databricks: Auto Loader and Delta MERGE loads into Unity Catalog, a Lakeflow Job with retries, a reconciliation gate and repair runs, dev and prod deployed from one Asset Bundle, and a serving table secured with a row filter and column mask.</p>
         <table class="proof">
           <caption>Results from the final run, checked against the data generator’s answer key</caption>
           <tr><th scope="row">Reconciliation</th><td><b>0 failed</b> — 27 passed, 7 explained, 11 informational</td></tr>
           <tr><th scope="row">Revenue control total</th><td>Identical in Silver, Gold, the export and Power BI</td></tr>
           <tr><th scope="row">Why SCD Type 2</th><td>Joining on the natural key inflated revenue by <b>7.7%</b> in a test</td></tr>
           <tr><th scope="row">Crash recovery</th><td>4,749 duplicate rows collapsed in Silver, no manual repair</td></tr>
+          <tr><th scope="row">Finding</th><td>The carrier, not region or segment, drives late delivery</td></tr>
           <tr><th scope="row">Key skew</th><td>Largest-to-median partition <b>21.9× → 2.9×</b> with a salt</td></tr>
         </table>
         <p class="honest">Synthetic data, fictional company, single workspace. This is not a production deployment; the README lists every known limitation.</p>
@@ -389,7 +390,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
       <div>
         <span class="tele kind work">Professional work, JKSR Trading, 2023–2026</span>
         <h3>Retail Data &amp; Reporting Platform</h3>
-        <p class="stack">Microsoft Fabric, Azure SQL, Snowflake, dbt, Airflow, Power BI, DAX, Python</p>
+        <p class="stack">Microsoft Fabric, Azure SQL, Snowflake, dbt, Airflow, Power BI, DAX, Python, Salesforce</p>
       </div>
       <div class="what">
         <p>Weekly performance reporting for three retail locations was manual: export sales and stock data, clean it in spreadsheets, rebuild the same reports. It was slow, error-prone and always a week behind.</p>
@@ -429,6 +430,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
           <tr><th scope="row">Incremental re-run</th><td>4.5M rows down to <b>56</b></td></tr>
           <tr><th scope="row">Query tuning</th><td>Micro-partitions scanned <b>8/8 → 1/8</b></td></tr>
           <tr><th scope="row">History</th><td>SCD Type 2 customer dimension with contiguous validity windows</td></tr>
+          <tr><th scope="row">Bug found</th><td>pandas nanosecond timestamps corrupted every bronze timestamp on <code>COPY INTO</code> while the load reported success. Fixed.</td></tr>
         </table>
         <p class="honest">Seeded data on a trial Snowflake account. A final Airflow run hit lock contention on a merge; it is logged as a finding, not fixed.</p>
       </div>
@@ -446,7 +448,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
         <div class="what">
           <p>A hybrid CNN-LSTM model that classifies DDoS, botnet and brute-force traffic on the CIC-IDS2017 dataset of more than 2.8 million flow records, with SMOTE for class imbalance and a Streamlit monitoring dashboard.</p>
           <table class="proof">
-            <tr><th scope="row">Thesis result</th><td><b>98.2% F1</b> on CIC-IDS2017</td></tr>
+            <tr><th scope="row">Thesis result</th><td><b>98.2% F1</b> on a held-out test split, with resampling applied to training data only</td></tr>
           </table>
         </div>
       </article>
@@ -463,32 +465,33 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
     </div>
 
     <article class="job">
-      <div><h3>Data and Operations Analyst</h3><p class="org">JKSR Trading Limited, Dublin</p><span class="tele when">May 2023 – Mar 2026</span></div>
+      <div><h3>Data and Operations Analyst</h3><p class="org">JKSR Trading Limited, Dublin</p><span class="tele when">May 2023 – Oct 2026</span></div>
       <ul>
-        <li>Replaced manual weekly reporting with an automated Microsoft Fabric and Power BI solution across three retail locations, cutting reporting effort by about 40%.</li>
-        <li>Built the extraction layer from Azure SQL Server and on-premise systems into Fabric, writing the SQL behind incremental loads.</li>
-        <li>Scheduled daily refreshes with Apache Airflow — task dependencies, retries and failure alerts — so dashboards updated without manual steps.</li>
-        <li>Consolidated cleaned data into Snowflake as the single reference point for downstream Power BI reporting.</li>
-        <li>Wrote Python forecasting and trend scripts to support demand planning and inventory decisions.</li>
-        <li>Investigated data issues to root cause and kept integrity standards and audit-ready documentation.</li>
+        <li>Built ingestion and reporting workflows with Microsoft Fabric Data Factory and Dataflows Gen2, landing Azure SQL and on-premise data in a Fabric Lakehouse; wrote the SQL for incremental loads and tuned queries against transactional tables.</li>
+        <li>Modelled Lakehouse data for Fabric semantic models with a DAX measure layer, and moved weekly manual reporting to a daily refresh. Reporting effort fell by about 40% and leadership got consistent KPIs across all three sites.</li>
+        <li>Developed and supported stock, sales and reporting workflows with Apache Airflow and dbt/Snowflake across operational and prototype work: dependencies, retries, failure alerting, key column tests, and metric definitions aligned across sites.</li>
+        <li>Implemented validation for nulls, uniqueness and referential integrity, and reconciled Salesforce data against Azure SQL and on-premise sources using field-level mappings.</li>
+        <li>Supported reporting operations: Power BI Service workspace deployments, refresh schedules, job monitoring, access controls and site-level row-level security.</li>
+        <li>Monitored IBM MQ message flows between store and back-office systems and worked with the vendor to resolve synchronisation failures.</li>
+        <li>Gathered requirements with site operations teams and delivered SQL and Python analysis, including demand forecasting scripts for stock planning.</li>
       </ul>
     </article>
 
     <article class="job">
       <div><h3>Project Service Coordinator</h3><p class="org">Mokshar Creative Studios, Hyderabad</p><span class="tele when">Jan 2022 – Dec 2022</span></div>
       <ul>
-        <li>Used SQL and Excel to turn business requirements into structured reporting frameworks.</li>
-        <li>Maintained project data tracking for traceability and decision-making.</li>
-        <li>Prepared reports and visualisations for senior stakeholders.</li>
+        <li>Maintained project tracking and reporting in SQL and Excel, building reports from business requirements for operations and leadership.</li>
+        <li>Cleaned and validated data from multiple source systems before reporting, and aligned definitions with report users.</li>
+        <li>Standardised recurring reporting templates to cut manual effort in weekly updates, and prepared visualisations for senior stakeholders.</li>
       </ul>
     </article>
 
     <article class="job">
       <div><h3>Assistant Software Engineer</h3><p class="org">Tavant Technologies, Bengaluru</p><span class="tele when">Mar 2021 – Dec 2021</span></div>
       <ul>
-        <li>Designed RESTful APIs for data access and integration across platforms.</li>
-        <li>Implemented CI/CD pipelines and automated testing using Git.</li>
-        <li>Worked in Agile/Scrum teams on data-driven product improvements.</li>
+        <li>Built REST APIs to move data between platforms, designing request and response schemas and keeping field mappings consistent across integration points.</li>
+        <li>Implemented CI/CD pipelines and automated testing using Git to improve workflow reliability and delivery speed.</li>
+        <li>Worked in Agile/Scrum teams on iterative, data-driven product improvements.</li>
       </ul>
     </article>
   </div>
@@ -503,17 +506,17 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
     </div>
     <div class="arch">
       <div class="layer"><h3>Ingest<small>Getting data out of source systems</small></h3>
-        <ul><li class="w">Azure SQL / SQL Server</li><li class="w">Fabric Data Factory</li><li class="w">Dataflows Gen2</li><li class="w">REST APIs</li><li>PostgreSQL</li><li>Databricks Auto Loader</li><li>Watermark-based extraction</li></ul></div>
+        <ul><li class="w">Azure SQL / SQL Server</li><li class="w">Fabric Data Factory</li><li class="w">Dataflows Gen2</li><li class="w">REST API integration</li><li class="w">Salesforce data extraction</li><li>PostgreSQL</li><li>Databricks Auto Loader</li><li>Watermark-based extraction</li></ul></div>
       <div class="layer"><h3>Store<small>Lakehouse and warehouse</small></h3>
-        <ul><li class="w">Fabric Lakehouse / OneLake</li><li class="w">Snowflake</li><li>Databricks</li><li>Delta Lake</li><li>Unity Catalog</li></ul></div>
+        <ul><li class="w">Fabric Lakehouse / OneLake</li><li class="w">Snowflake</li><li>Databricks</li><li>Delta Lake (MERGE, liquid clustering)</li><li>Unity Catalog</li></ul></div>
       <div class="layer"><h3>Transform<small>Cleaning, conforming, modelling</small></h3>
-        <ul><li class="w">SQL</li><li class="w">Python</li><li class="w">dbt</li><li class="w">Dimensional modelling</li><li>PySpark</li><li>Incremental models</li><li>SCD Type 2</li></ul></div>
+        <ul><li class="w">SQL</li><li class="w">Python</li><li class="w">dbt</li><li class="w">Dimensional modelling</li><li class="w">Incremental and watermark loads</li><li>PySpark</li><li>Medallion architecture</li><li>SCD Type 2</li></ul></div>
       <div class="layer"><h3>Verify<small>Quality, reconciliation, governance</small></h3>
-        <ul><li class="w">Validation checks</li><li class="w">Row-level security</li><li class="w">Audit documentation</li><li>dbt tests</li><li>Source freshness</li><li>Reconciliation frameworks</li><li>Row filters and masks</li></ul></div>
+        <ul><li class="w">Automated validation</li><li class="w">Reconciliation</li><li class="w">Row-level security</li><li class="w">Audit documentation</li><li>dbt tests</li><li>Source freshness</li><li>Control totals and reject quarantine</li><li>Unity Catalog grants</li><li>Row filters and column masks</li></ul></div>
       <div class="layer"><h3>Orchestrate<small>Scheduling and deployment</small></h3>
         <ul><li class="w">Apache Airflow</li><li class="w">Git</li><li class="w">CI/CD</li><li class="w">Docker</li><li>Lakeflow Jobs</li><li>Databricks Asset Bundles</li></ul></div>
       <div class="layer"><h3>Serve<small>Semantic layer and reporting</small></h3>
-        <ul><li class="w">Power BI</li><li class="w">DAX</li><li class="w">Power Query (M)</li><li class="w">Semantic models</li><li class="w">Power BI Service administration</li></ul></div>
+        <ul><li class="w">Power BI</li><li class="w">DAX</li><li class="w">Power Query (M)</li><li class="w">Semantic models</li><li class="w">Time intelligence</li><li class="w">Power BI Service administration</li></ul></div>
     </div>
     <p class="legend"><span class="w">Used in professional work</span><span>Used in my own public builds</span></p>
   </div>
@@ -552,7 +555,6 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
         <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" rows="5" required></textarea></div>
         <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
         <button class="btn solid" type="submit">Get in touch</button>
-        <p class="form-note">Your message is emailed straight to me. Nothing else is stored on this site.</p>
       </form>
     </div>
   </div>
@@ -562,7 +564,6 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem
 <footer>
   <div class="wrap tele">
     <span>© <span id="yr">2026</span> Praneeth Varma Danthuluri</span>
-    <span>Hand-built. No frameworks, no trackers</span>
   </div>
 </footer>
 
